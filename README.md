@@ -1,5 +1,5 @@
-# Mendz.Data.MongoDB
-Provides a generic Mendz.Data-aware context for MongoDB.
+ # Mendz.Data.MongoDB
+Provides a generic Mendz.Data-aware context for MongoDB. [Wiki](https://github.com/etmendz/Mendz.Data.MongoDB/wiki)
 ## Namespace
 Mendz.Data.MongoDB
 ### Contents
