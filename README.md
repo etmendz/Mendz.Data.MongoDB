@@ -1,4 +1,4 @@
- # Mendz.Data.MongoDB
+# Mendz.Data.MongoDB
 Provides a generic Mendz.Data-aware context for MongoDB. [Wiki](https://github.com/etmendz/Mendz.Data.MongoDB/wiki)
 ## Namespace
 Mendz.Data.MongoDB
@@ -11,7 +11,7 @@ MongoDbDataSettingOption | Provides the data setting options for MongoDB.
 Mendz.Data.Common defines an IDbDataContext interface, which is implemented as GenericDbDataContextBase.
 MongoDbDataContext derives from GenericDbDataContextBase, which requires the abstract BuildContext() method to be implemented.
 The internal implementation uses Mendz.Data.DataSettingOptions to build the data context.
-MongoDbDataContext.BuildContext() will first look for MongoDbDataSettingOption.Client and MongoDbDataSettingOption.Context.
+MongoDbDataContext.BuildContext() will look for MongoDbDataSettingOption.Client and MongoDbDataSettingOption.Context.
 
 MongoDbDataContext assumes that appsettings.json contains an entry/section for DataSettings.
 ```JSON
