@@ -12,10 +12,10 @@
     <PackageTags>data database context mongodb</PackageTags>
     <PackageProjectUrl>https://github.com/etmendz/Mendz.Data.MongoDB</PackageProjectUrl>
     <RepositoryUrl>https://github.com/etmendz/Mendz.Data.MongoDB</RepositoryUrl>
-    <Version>1.0.3</Version>
-    <AssemblyVersion>1.0.3.0</AssemblyVersion>
-    <FileVersion>1.0.3.0</FileVersion>
-    <PackageReleaseNotes>Minor dependency update.</PackageReleaseNotes>
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <PackageReleaseNotes>Added settings, sessions/transactions and options support.</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
