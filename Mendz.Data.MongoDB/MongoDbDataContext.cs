@@ -13,19 +13,18 @@ namespace Mendz.Data.MongoDB
         protected override IMongoDatabase BuildContext()
         {
             MongoClient client;
-            if (MongoDbDataSettingOption.ClientSettings != null)
+            if (MongoDbDataSettingOption.ClientSettings == null)
             {
-                client = new MongoClient(MongoDbDataSettingOption.ClientSettings);
+                client = new MongoClient(DataSettingOptions.ConnectionStrings[MongoDbDataSettingOption.Client]);
             }
             else
             {
-                client = new MongoClient(DataSettingOptions.ConnectionStrings[MongoDbDataSettingOption.Client]);
+                client = new MongoClient(MongoDbDataSettingOption.ClientSettings);
             }
             return client.GetDatabase(DataSettingOptions.ConnectionStrings[MongoDbDataSettingOption.Context], MongoDbDataSettingOption.DatabaseSettings);
         }
 
         #region Session/Transaction Support
-        protected IClientSessionHandle _session = null;
         /// <summary>
         /// Gets the client session handle.
         /// </summary>
@@ -36,10 +35,7 @@ namespace Mendz.Data.MongoDB
         /// This implemention basically aligns with MongoDB's APIs for sessions/transactions.
         /// However, note that the basic essence and intent of Mendz.Data contexts remains intact.
         /// </remarks>
-        public IClientSessionHandle Session
-        {
-            get => _session;
-        }
+        public IClientSessionHandle Session { get; protected set; }
 
         /// <summary>
         /// Begins a transaction.
@@ -49,11 +45,11 @@ namespace Mendz.Data.MongoDB
         /// <param name="cancellationToken">Optional cancellation token.</param>
         public void BeginTransaction(ClientSessionOptions clientSessionOptions = null, TransactionOptions transactionOptions = null, CancellationToken cancellationToken = default)
         {
-            if (_session == null)
+            if (Session == null)
             {
                 CreateContext();
-                _session = _context.Client.StartSession(clientSessionOptions, cancellationToken);
-                _session.StartTransaction(transactionOptions);
+                Session = Context.Client.StartSession(clientSessionOptions, cancellationToken);
+                Session.StartTransaction(transactionOptions);
             }
         }
 
@@ -64,21 +60,21 @@ namespace Mendz.Data.MongoDB
         /// <param name="cancellationToken">Optional cancellation token.</param>
         public void EndTransaction(EndTransactionMode mode = EndTransactionMode.Commit, CancellationToken cancellationToken = default)
         {
-            if (_session != null)
+            if (Session != null)
             {
-                if (_session.IsInTransaction)
+                if (Session.IsInTransaction)
                 {
                     if (mode == EndTransactionMode.Commit)
                     {
-                        _session.CommitTransaction(cancellationToken);
+                        Session.CommitTransaction(cancellationToken);
                     }
                     else
                     {
-                        _session.AbortTransaction(cancellationToken);
+                        Session.AbortTransaction(cancellationToken);
                     }
                 }
-                _session.Dispose();
-                _session = null;
+                Session.Dispose();
+                Session = null;
             }
         }
 
@@ -90,11 +86,11 @@ namespace Mendz.Data.MongoDB
         /// <param name="cancellationToken">Optional cancellation token.</param>
         public async void BeginTransactionAsync(ClientSessionOptions clientSessionOptions = null, TransactionOptions transactionOptions = null, CancellationToken cancellationToken = default)
         {
-            if (_session == null)
+            if (Session == null)
             {
                 CreateContext();
-                _session = await _context.Client.StartSessionAsync(clientSessionOptions, cancellationToken);
-                _session.StartTransaction(transactionOptions);
+                Session = await Context.Client.StartSessionAsync(clientSessionOptions, cancellationToken).ConfigureAwait(false);
+                Session.StartTransaction(transactionOptions);
             }
         }
 
@@ -105,21 +101,21 @@ namespace Mendz.Data.MongoDB
         /// <param name="cancellationToken">Optional cancellation token.</param>
         public async void EndTransactionAsync(EndTransactionMode mode = EndTransactionMode.Commit, CancellationToken cancellationToken = default)
         {
-            if (_session != null)
+            if (Session != null)
             {
-                if (_session.IsInTransaction)
+                if (Session.IsInTransaction)
                 {
                     if (mode == EndTransactionMode.Commit)
                     {
-                        await _session.CommitTransactionAsync(cancellationToken);
+                        await Session.CommitTransactionAsync(cancellationToken).ConfigureAwait(false);
                     }
                     else
                     {
-                        await _session.AbortTransactionAsync(cancellationToken);
+                        await Session.AbortTransactionAsync(cancellationToken).ConfigureAwait(false);
                     }
                 }
-                _session.Dispose();
-                _session = null;
+                Session.Dispose();
+                Session = null;
             }
         }
         #endregion
@@ -133,21 +129,18 @@ namespace Mendz.Data.MongoDB
             {
                 if (disposing)
                 {
-                    if (_session != null)
-                    {
-                        _session.Dispose();
-                    }
-                    if (_context != null)
-                    {
-                        //_context.Dispose();
-                        _context = null;
-                    }
+                    if (Session != null) Session.Dispose();
+                    if (Context != null) Context = null;
                 }
                 disposed = true;
             }
         }
 
-        public void Dispose() => Dispose(true);
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
         #endregion
     }
 }
